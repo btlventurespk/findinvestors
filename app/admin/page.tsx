@@ -3,6 +3,7 @@ import Container from '@/components/ui/Container';
 import ApplicationsPanel from '@/components/admin/ApplicationsPanel';
 import IntroRequestsPanel from '@/components/admin/IntroRequestsPanel';
 import LogoutButton from '@/components/admin/LogoutButton';
+import SetupDbButton from '@/components/admin/SetupDbButton';
 import { prisma } from '@/lib/db';
 import { requireAdmin } from '@/lib/adminAuth';
 import { slugify } from '@/lib/publish';
@@ -112,6 +113,7 @@ export default async function AdminDashboard() {
             {dbHint ||
               'Check DATABASE_URL in the Hostinger panel and make sure the migrations have been run (npx prisma migrate deploy).'}
           </p>
+          {process.env.DATABASE_URL && <SetupDbButton />}
         </div>
       )}
 
