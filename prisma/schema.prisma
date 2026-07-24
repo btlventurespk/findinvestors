@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Startup {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  logoUrl       String?
+  oneLiner      String   @db.VarChar(160)
+  sector        String
+  city          String
+  foundedYear   Int
+  entityType    String
+  website       String?
+  problem       String   @db.Text
+  solution      String   @db.Text
+  businessModel String   @db.Text
+  targetMarket  String   @db.Text
+  competition   String?  @db.Text
+  revenueBand   String
+  monthsRunning Int
+  customers     String
+  growthPct     String?
+  milestones    String?  @db.Text
+  raiseMin      Int
+  raiseMax      Int
+  equityOffered String?
+  useOfFunds    String   @db.Text
+  priorFunding  Boolean  @default(false)
+  founderName   String
+  founderRole   String
+  founderBio    String   @db.Text
+  founderPhoto  String?
+  linkedin      String?
+  teamSize      Int
+  deckUrl       String?
+  videoUrl      String?
+  gallery       Json?
+  featured      Boolean  @default(false)
+  published     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  intros        IntroRequest[]
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  payload   Json
+  email     String
+  whatsapp  String
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+}
+
+model IntroRequest {
+  id        String   @id @default(cuid())
+  startupId String
+  startup   Startup  @relation(fields: [startupId], references: [id])
+  name      String
+  email     String
+  phone     String
+  message   String?  @db.Text
+  createdAt DateTime @default(now())
+}

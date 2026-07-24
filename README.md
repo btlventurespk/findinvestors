@@ -1,0 +1,67 @@
+# findinvestors.pk
+
+Where Pakistan's revenue-generating startups get seen by people who write cheques.
+
+Next.js 15 (App Router, TypeScript) · Tailwind CSS · Prisma + MySQL · Nodemailer (SMTP).
+
+## Local development
+
+```bash
+npm install
+cp .env.example .env   # fill in DATABASE_URL, SMTP, NEXT_PUBLIC_WHATSAPP
+npx prisma generate
+npx prisma migrate dev # creates tables in MySQL
+npx prisma db seed     # seeds 15 startups from data/startups.json
+npm run dev
+```
+
+The site works without a database — pages fall back to `data/startups.json` — but
+applications and intro requests are only persisted once `DATABASE_URL` is set.
+
+> **Warning:** the seed startups are placeholder data. Replace with real companies
+> before launch — placeholder data must never go live.
+
+## Deploying to Hostinger (Node.js)
+
+1. **Build locally, not on the server** (shared-hosting memory limits kill `next build`):
+   ```bash
+   npx prisma generate && npm run build
+   ```
+2. Upload to the server: `.next/`, `public/`, `package.json`, `package-lock.json`,
+   `prisma/`, `data/`, `next.config.js`, `next-sitemap.config.js`. **Exclude `node_modules/`.**
+3. On the server: `npm ci --omit=dev` (then `npx prisma generate` once).
+4. Env vars go in the **Hostinger Node.js panel**, not a `.env` file. Set:
+   `DATABASE_URL` (use the internal MySQL host from hPanel, not localhost),
+   `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `NOTIFY_EMAIL`,
+   `NEXT_PUBLIC_WHATSAPP`, `SITE_URL`, and for the admin dashboard:
+   `ADMIN_USER`, `ADMIN_PASSWORD` (long and random), optional `ADMIN_SECRET`.
+5. The panel runs `npm start` (`next start`), which listens on the `PORT`
+   env var if set (set `PORT=3000` in the panel, like other Hostinger Node
+   apps) and defaults to 3000 otherwise.
+6. First deploy only: `npx prisma migrate deploy` then `npx prisma db seed`.
+7. Point the findinvestors.pk A record at Hostinger, enable free SSL, force HTTPS.
+8. Uploads/images: shared disk is not persistent across redeploys — use Cloudinary
+   for logos and founder photos (`res.cloudinary.com` is whitelisted in `next.config.js`).
+
+> If the tables were originally created with `prisma db push` (no migration
+> history), `migrate deploy` will complain about a non-empty database. Baseline
+> it once with `npx prisma migrate resolve --applied 0_init`, then future
+> `migrate deploy` runs will work.
+
+## Admin dashboard
+
+`/admin` — sign in with `ADMIN_USER` / `ADMIN_PASSWORD`. The dashboard shows
+every startup application (all fields, expandable) and every intro request.
+Ticking **Visible on website** on an application publishes it as a live profile
+in the `/startups` directory; unticking takes it down. Sessions last 7 days via
+a signed HttpOnly cookie. The admin area is excluded from the sitemap and
+robots.txt.
+
+## Structure
+
+- `app/` — routes (home, `/startups`, `/startups/[slug]`, `/apply`, static pages, API routes)
+- `components/ui/` — Button, Pill, Card, Container, Logo
+- `components/sections/` — page sections, directory filters, apply form, intro modal
+- `lib/` — Prisma client, data access with seed-data fallback, email
+- `prisma/` — schema and seed script
+- `data/startups.json` — seed profiles (placeholder)
