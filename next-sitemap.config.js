@@ -2,8 +2,8 @@
 module.exports = {
   siteUrl: process.env.SITE_URL || 'https://findinvestors.pk',
   generateRobotsTxt: true,
-  exclude: ['/apply/thank-you'],
+  exclude: ['/apply/thank-you', '/admin', '/admin/*'],
   robotsTxtOptions: {
-    policies: [{ userAgent: '*', allow: '/', disallow: ['/api', '/apply/thank-you'] }],
+    policies: [{ userAgent: '*', allow: '/', disallow: ['/api', '/apply/thank-you', '/admin'] }],
   },
 };

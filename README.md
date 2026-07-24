@@ -33,13 +33,28 @@ applications and intro requests are only persisted once `DATABASE_URL` is set.
 4. Env vars go in the **Hostinger Node.js panel**, not a `.env` file. Set:
    `DATABASE_URL` (use the internal MySQL host from hPanel, not localhost),
    `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `NOTIFY_EMAIL`,
-   `NEXT_PUBLIC_WHATSAPP`, `SITE_URL`.
+   `NEXT_PUBLIC_WHATSAPP`, `SITE_URL`, and for the admin dashboard:
+   `ADMIN_USER`, `ADMIN_PASSWORD` (long and random), optional `ADMIN_SECRET`.
 5. The panel runs `npm start`, which is `next start -p $PORT` — the port is
    assigned by Hostinger, never hardcode it.
 6. First deploy only: `npx prisma migrate deploy` then `npx prisma db seed`.
 7. Point the findinvestors.pk A record at Hostinger, enable free SSL, force HTTPS.
 8. Uploads/images: shared disk is not persistent across redeploys — use Cloudinary
    for logos and founder photos (`res.cloudinary.com` is whitelisted in `next.config.js`).
+
+> If the tables were originally created with `prisma db push` (no migration
+> history), `migrate deploy` will complain about a non-empty database. Baseline
+> it once with `npx prisma migrate resolve --applied 0_init`, then future
+> `migrate deploy` runs will work.
+
+## Admin dashboard
+
+`/admin` — sign in with `ADMIN_USER` / `ADMIN_PASSWORD`. The dashboard shows
+every startup application (all fields, expandable) and every intro request.
+Ticking **Visible on website** on an application publishes it as a live profile
+in the `/startups` directory; unticking takes it down. Sessions last 7 days via
+a signed HttpOnly cookie. The admin area is excluded from the sitemap and
+robots.txt.
 
 ## Structure
 
