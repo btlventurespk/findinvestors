@@ -35,8 +35,9 @@ applications and intro requests are only persisted once `DATABASE_URL` is set.
    `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `NOTIFY_EMAIL`,
    `NEXT_PUBLIC_WHATSAPP`, `SITE_URL`, and for the admin dashboard:
    `ADMIN_USER`, `ADMIN_PASSWORD` (long and random), optional `ADMIN_SECRET`.
-5. The panel runs `npm start`, which is `next start -p $PORT` — the port is
-   assigned by Hostinger, never hardcode it.
+5. The panel runs `npm start` (`next start`), which listens on the `PORT`
+   env var if set (set `PORT=3000` in the panel, like other Hostinger Node
+   apps) and defaults to 3000 otherwise.
 6. First deploy only: `npx prisma migrate deploy` then `npx prisma db seed`.
 7. Point the findinvestors.pk A record at Hostinger, enable free SSL, force HTTPS.
 8. Uploads/images: shared disk is not persistent across redeploys — use Cloudinary
