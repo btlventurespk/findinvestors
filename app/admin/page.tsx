@@ -36,6 +36,8 @@ export default async function AdminDashboard() {
     createdAt: string;
   }[] = [];
   let dbError = false;
+  let dbErrorDetail = '';
+  let dbHint = '';
 
   try {
     const [apps, introRows, startups] = await Promise.all([
@@ -71,6 +73,21 @@ export default async function AdminDashboard() {
   } catch (e) {
     console.error('Admin dashboard DB read failed:', e);
     dbError = true;
+    const err = e as { code?: string; message?: string };
+    // First line of the Prisma message carries the useful part
+    dbErrorDetail = [err.code, err.message?.split('\n').filter(Boolean).slice(-1)[0]]
+      .filter(Boolean)
+      .join(' — ');
+    if (!process.env.DATABASE_URL) {
+      dbHint =
+        'DATABASE_URL is not set. Add it in the Hostinger Node.js panel and restart the app.';
+    } else if (err.code === 'P1001' || err.code === 'P1000') {
+      dbHint =
+        'The database refused the connection. Check the host, username and password in DATABASE_URL. If your password has special characters (@ : / # etc.), they must be URL-encoded.';
+    } else if (err.code === 'P2021' || dbErrorDetail.includes('does not exist')) {
+      dbHint =
+        'Connected, but the tables are missing. Run: npx prisma migrate deploy (then npx prisma db seed if you want the sample startups).';
+    }
   }
 
   return (
@@ -87,8 +104,14 @@ export default async function AdminDashboard() {
 
       {dbError && (
         <div className="mt-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-body text-red-700">
-          Could not reach the database. Check DATABASE_URL in the Hostinger panel and make sure
-          the migrations have been run (npx prisma migrate deploy).
+          <p className="font-heading font-bold">Could not reach the database.</p>
+          {dbErrorDetail && (
+            <p className="mt-2 break-words font-mono text-small">{dbErrorDetail}</p>
+          )}
+          <p className="mt-3 text-small">
+            {dbHint ||
+              'Check DATABASE_URL in the Hostinger panel and make sure the migrations have been run (npx prisma migrate deploy).'}
+          </p>
         </div>
       )}
 
