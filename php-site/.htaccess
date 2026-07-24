@@ -1,0 +1,3 @@
+# findinvestors.pk — serve index.php as the homepage.
+# Kept intentionally minimal so it works on any PHP host without errors.
+DirectoryIndex index.php index.html
