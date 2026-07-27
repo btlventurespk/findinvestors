@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/mailer.php';
 
 /** Escape for HTML output. */
 function e($v): string {
@@ -59,12 +60,30 @@ function wa_link(string $text = ''): string {
     return $text ? $base . '?text=' . rawurlencode($text) : $base;
 }
 
-/** Send a notification email if NOTIFY_EMAIL is set. Best-effort. */
-function notify(string $subject, string $body): void {
-    if (!NOTIFY_EMAIL) return;
-    $headers = 'From: findinvestors <' . CONTACT_EMAIL . ">\r\n" .
+/**
+ * Send a notification email. Prefers authenticated SMTP (reliable); falls back
+ * to PHP mail() if SMTP isn't configured. Best-effort — never throws.
+ * Returns [bool $sent, string $error] so callers/tests can report the reason.
+ */
+function notify(string $subject, string $body): array {
+    $to = (defined('MAIL_TO') && MAIL_TO) ? MAIL_TO : '';
+    if (!$to) return [false, 'MAIL_TO not set'];
+
+    // Preferred path: authenticated SMTP
+    if (defined('SMTP_PASS') && SMTP_PASS !== '') {
+        $err = null;
+        if (smtp_send($to, $subject, $body, $err)) return [true, 'sent via SMTP'];
+        error_log('findinvestors SMTP failed: ' . $err);
+        // fall through to mail()
+    }
+
+    // Fallback: PHP mail()
+    $from = (defined('MAIL_FROM') && MAIL_FROM) ? MAIL_FROM : CONTACT_EMAIL;
+    $headers = 'From: findinvestors <' . $from . ">\r\n" .
+               'Reply-To: ' . $from . "\r\n" .
                'Content-Type: text/plain; charset=UTF-8';
-    @mail(NOTIFY_EMAIL, $subject, $body, $headers);
+    $sent = @mail($to, $subject, $body, $headers);
+    return [$sent, $sent ? 'sent via PHP mail()' : 'PHP mail() returned false (SMTP recommended)'];
 }
 
 /** Field labels shared by the apply form and the admin editor. */

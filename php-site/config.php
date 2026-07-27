@@ -16,10 +16,20 @@ define('ADMIN_PASS', 'ChangeThisPassword!'); // pick a strong one
 
 // ---- Contact / WhatsApp ------------------------------------------------
 define('WHATSAPP_NUMBER', '923110844455'); // country code, no + or spaces
-define('CONTACT_EMAIL', 'info@findinvestors.pk');
+define('CONTACT_EMAIL', 'hello@findinvestors.pk'); // shown publicly on the site
 
-// ---- Notification email (optional; leave blank to disable) -------------
-define('NOTIFY_EMAIL', ''); // e.g. btlventurespk@gmail.com — uses PHP mail()
+// ---- Email notifications (sent when someone fills a form) --------------
+// Where the notification emails are delivered:
+define('MAIL_TO', 'hello@findinvestors.pk');
+
+// SMTP — recommended, reliable delivery. Create the mailbox in
+// hPanel -> Emails first, then paste its password into SMTP_PASS below.
+// Leave SMTP_PASS blank to fall back to PHP mail() (less reliable).
+define('SMTP_HOST', 'smtp.hostinger.com');
+define('SMTP_PORT', 465);                       // 465 = SSL (recommended), 587 = TLS
+define('SMTP_USER', 'hello@findinvestors.pk');  // the mailbox you send FROM
+define('SMTP_PASS', '');                        // that mailbox's password
+define('MAIL_FROM', 'hello@findinvestors.pk');  // usually same as SMTP_USER
 
 // ---- Site ---------------------------------------------------------------
 define('SITE_URL', 'https://findinvestors.pk');

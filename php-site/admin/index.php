@@ -22,6 +22,7 @@ require __DIR__ . '/../inc/header.php';
     <div>
       <a href="/" target="_blank">View site ↗</a>
       <a href="/admin/edit.php">+ Add startup</a>
+      <a href="/admin/test-email.php">Test email</a>
       <a href="/admin/logout.php">Sign out</a>
     </div>
   </div>
